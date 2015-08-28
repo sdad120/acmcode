@@ -2,7 +2,7 @@ struct SA{
     char s[N];
     int sa[N], na[N], r[N], nr[N][2], c[N], h[N], n;
 
-    void bld(){
+    void bld(){ // r[i]为原字符串位置i后缀的rank，sa[i]表示rank为i的字符串在原来的位置，都为0-base
         memset(c, 0, sizeof(c));
         for (int i = 0; i < n; ++ i){
             c[s[i]] ++;
@@ -68,7 +68,9 @@ struct SA{
         }
     }
 
-    int get(int a, int b){
+    int get(int a, int b){ //a b是原字符串的位置
+        a = r[a]; b = r[b];
+        if (a > b) swap(a, b); ++ a;
         int k = 0;
         while ((1 << (k + 1)) <= b - a + 1) ++ k;
         return min(dp[a][k], dp[b - (1 << k) + 1][k]);
