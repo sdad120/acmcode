@@ -33,7 +33,7 @@ struct tree{
         }
     }
 
-    int lca(int x, int y){
+    int getLca(int x, int y){
         if (d[x] < d[y]){
             swap(x, y);
         }
