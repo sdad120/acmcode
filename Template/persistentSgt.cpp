@@ -1,78 +1,86 @@
-//CF276E
-//需要留一个p[0]作为空结点，以及需要注意空结点在update和get中的出现
-//0-inf做为区间的动态开点线段树写法相同
+//CF276E，POJ2104，ZJU2112，HDU4348，HIHOCDER1232
+//0-inf做为区间的动态开点线段树写法类似
 
 struct Node{
-    int l, r, t, L, R, len;
-    Node(int a = 0, int b = 0, int c = 0, int d = 0, int e = 0, int f = 0) : l(a), r(b), t(c), L(d), R(e), len(f) {}
-}p[N * 20];
+	int ls, rs, val;
+	Node(int a = 0, int b = 0, int c = 0): ls(a), rs(b), val(c){}
+}p[N*20];
 
-struct Sgt{
-    int root[N], node, n;
+//区间可持续需要开大空间
+//p[0]做为空结点，在update中注意不能造成任何影响
+struct SegmentTree{
+	int root[N], node, n;
 
-    void init(int _n){
-        node = 1;
-        n = _n;
-    }
+	void init(int _n, int tot){
+		node = 1;
+		n = _n;
+		for (int i = 0; i <= tot; ++ i){
+			root[i] = 0;
+		}
+	}
 
-    int New_Node() {
-        p[node] = Node();
-        return node++;
-    }
+	int newNode(){
+		p[node] = Node();
+		return node++;
+	}
 
-    Node ret;
+	//单点更新，每一次add都会进行一次path copy
+	void add(int pre, int &now, int l, int r, int x){
+		now = newNode();
+		if (l == r){
+			/*
+				do some update from pre here
+				ex: p[now].val = p[pre].val + 1;
+			*/
+			return;
+		}
+		int mid = (l + r) / 2;
+		if (x <= mid){
+			add(p[pre].ls, p[now].ls, l, mid, x);
+			p[now].rs = p[pre].rs;		
+		}		
+		else{
+			add(p[pre].rs, p[now].rs, mid+1, r, x);
+			p[now].ls = p[pre].ls;		
+		}		
+		/*
+			do some update from son here
+			ex: p[now].val = p[p[now].ls].val + p[p[now].rs].val;
+		*/
+	}
 
-    Node update(const Node&Z, const Node&X, const Node&Y, int l, int r, int mid){
-        ret = Node();
-        ret.l = Z.l; ret.r = Z.r;
-        ret.len = r - l + 1;
-        if (X.L == mid - l + 1){
-            ret.L = X.L + Y.L;
-        } else {
-            ret.L = X.L;
-        }
+	void pushDown(int k, int l, int r){
+		if (l != r){
+			int nowLson = p[k].ls;
+			int nowRson = p[k].rs;
+			/* 
+				if update then
+				nowL(R)son = newNode(); p[nowL(R)son] = p[p[k].l(r)s];
+				do some update from tag			
+			*/
+			p[k].ls = nowLson;
+			p[k].rs = nowRson;
+			p[k].tag = 0;
+		}
+	}
 
-        if (Y.R == r - mid){
-            ret.R = Y.R + X.R;
-        } else {
-            ret.R = Y.R;
-        }
-
-        ret.t = max(X.t, Y.t);
-        ret.t = max(ret.t, max(ret.L, ret.R));
-        ret.t = max(ret.t, X.R + Y.L);
-
-        return ret;
-    }
-
-    void add(int pre, int &now, int l, int r, int x){
-        now = New_Node();
-        if (l == r){
-            p[now].L = p[now].R = p[now].t = p[now].len = 1;
-            return;
-        }
-        int mid = (l + r) / 2;
-        if (x <= mid){
-            add(p[pre].l, p[now].l, l, mid, x);
-            p[now].r = p[pre].r;
-        } else {
-            add(p[pre].r, p[now].r, mid+1, r, x);
-            p[now].l = p[pre].l;
-        }
-        p[now] = update(p[now], p[p[now].l], p[p[now].r], l, r, mid);
-    }
-
-    Node get(int now, int l, int r, int x, int y){
-        if (now == 0){
-            return Node();
-        }
-        if (l == x && r == y){
-            return p[now];
-        }
-        int mid = (l + r) / 2;
-        if (y <= mid) return get(p[now].l, l, mid, x, y);
-        else if (x > mid) return get(p[now].r, mid+1, r, x, y);
-        else return update(ret, get(p[now].l, l, mid, x, mid), get(p[now].r, mid+1, r, mid+1, y), x, y, mid);
-    }
-
-}ly;
+	//区间更新
+	void add(int pre, int &now, int l, int r, int x, int y, int z){
+		pushDown(pre, l, r);
+		now = newNode();
+		if (x <= l && r <= y){
+			/*
+				do some update from pre here
+			*/
+			return;
+		}
+		int mid = (l + r) / 2;
+		if (x <= mid) add(p[pre].ls, p[now].ls, l, mid, x, y, z);
+		if (y > mid) add(p[pre].rs, p[now].rs, mid + 1, r, x, y, z);
+		if (p[now].ls == 0) p[now].ls = p[pre].ls;
+		if (p[now].rs == 0) p[now].rs = p[pre].rs;
+		/*
+			do some update from son here
+		*/
+	}
+};

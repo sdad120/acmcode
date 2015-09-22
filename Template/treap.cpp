@@ -1,3 +1,4 @@
+//当区间问题时，利用merge默认a中元素比b中小即可
 struct Node{
     int value, size;
     Node *l, *r;
@@ -6,6 +7,9 @@ struct Node{
     }
     Node(){}
     Node* update() {
+		/*
+			do some update here	
+		*/
         size = l->size + 1 + r->size;
         return this;
     }
@@ -14,7 +18,7 @@ struct Node{
 struct Treap{
     Node bar[N * 15], *foo, *root[N*2], *null;
 
-    void init(int n) {
+    void init(int n) { //这是针对n个root的initial
         foo = null = bar;
         null->l = null->r = null;
         foo++;
@@ -120,7 +124,7 @@ struct Treap{
         }
     }
 
-    Node* combine(Node *a, Node *b) { //将a和b两个Treap合并，返回新Treap的根
+    Node* combine(Node *a, Node *b) { //将a和b两个Treap合并，返回新Treap的根 (启发式)
         if (a->size > b->size) {
             swap(a, b);
         }
