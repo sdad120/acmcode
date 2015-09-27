@@ -59,7 +59,7 @@ struct SA{
 
     int dp[N][20]; 
     
-    void ready(){
+    void ready(){ // h[i]表示的是rank数组的第i个字符串与第i-1个字符串的最长公共前缀
         for (int i = 0; i < n; ++ i) dp[i][0] = h[i];
         for (int j = 1; (1 << j) <= n; ++ j){
             for (int i = 0; i + (1 << j) - 1 < n; ++ i){
